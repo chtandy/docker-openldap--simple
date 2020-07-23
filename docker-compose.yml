@@ -1,0 +1,37 @@
+version: '3'
+services:
+  openldap:
+    image: osixia/openldap:1.4.0
+    container_name: openldap
+    environment:
+      LDAP_ORGANISATION: "Lab LADP"
+      LDAP_DOMAIN: "lab.com.tw"
+      LDAP_ADMIN_PASSWORD: "password"
+      LDAP_CONFIG_PASSWORD: "password"
+    volumes:
+      - ./data/ldap:/var/lib/ldap
+      - ./data/slapd.d:/etc/ldap/slapd.d
+      - ./data/certs:/container/service/slapd/assets/certs/
+    ports:
+      - "389:389"
+      - "636:636"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: phpldapadmin
+    environment:
+      PHPLDAPADMIN_LDAP_HOSTS: "openldap"
+      PHPLDAPADMIN_HTTPS: "false"
+    ports:
+      - "80:80"
+    depends_on:
+      - openldap
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
